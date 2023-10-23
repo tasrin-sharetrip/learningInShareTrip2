@@ -1,5 +1,6 @@
-const { genSaltSync, hashSync, hash } = require("bcrypt");
-const { create, getUserByUserId, getUsers, updateUsers, deleteUser } = require("./user.service");
+const { genSaltSync, hashSync, compareSync } = require("bcrypt");
+const { create, getUserByUserId, getUsers, updateUsers, deleteUser, getUserByUserMail} = require("./user.service");
+const jwt = require("jsonwebtoken"); 
 
 module.exports = {
     createUser: (req, res) => {
@@ -93,6 +94,42 @@ module.exports = {
                 success: 1,
                 message: "user deleted successfully"
             });
+        });
+    },
+    login: (req, res) => { // For login user will send email & password
+        const body = req.body;
+        console.log(body);
+        getUserByUserMail(body.email, (error, results) => {
+            if(error){
+                console.log(err);
+            }
+            if(!results){
+                return res.json({
+                    success: 0,
+                    data: "Invalid mail or password" // why password I don't get this (I think we can't give specific msg to user that's why it is like that.)
+                });
+            }
+            // results comes from user.service callback function
+            const result = compareSync(body.password, results.password); // if it is match result variable will be true
+            if(result){
+                // without password, generating token
+                results.password = undefined;
+                const token = jwt.sign({ id: results.id}, process.env.SECRET_KEY_JSONWEBTOKEN, { //{result: results}
+                    expiresIn: "100h"
+                });
+                return res.json({
+                    success: 1,
+                    message: "login successfully",
+                    user: results, // own added
+                    token: token
+                });
+            }
+            else{
+                return res.json({
+                    success: 0,
+                    message: "Invalid mail or password"
+                });
+            }
         });
     }
 };

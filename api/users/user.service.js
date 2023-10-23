@@ -87,7 +87,7 @@ module.exports = {
                 if(error){
                     return callBack(error);
                 }
-                return callBack(null, results[0]);
+                return callBack(null, results[0]); // if we don't use 0 here then we cant get results.password in user.controller{results will be array so results.password wont make sense}
             }
         );
     }
