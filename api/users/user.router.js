@@ -3,7 +3,8 @@ const router = require("express").Router();
 const {checkToken} = require("../../middlewares/token_validation");
 
 
-router.post("/", checkToken, createUser); // without authentication can't create user
+//router.post("/", checkToken, createUser); // without authentication can't create user
+router.post("/", createUser);
 router.get("/", checkToken, getUsers); // without authentication can't get all users list 
 router.get("/:id", checkToken, getUserByUserId);
 router.put("/", checkToken, updateUsers);
